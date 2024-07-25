@@ -1,13 +1,3 @@
-# from machine import Pin
-# import time
-# led = Pin(2, Pin.OUT)
-# while(True):
-#     led(0)
-#     time.sleep(0.5)
-#     led(1)
-#     time.sleep(0.5)
-
-
 # Complete project details at https://RandomNerdTutorials.com
 
 from machine import SPI, Pin, I2C
@@ -30,14 +20,14 @@ sd = sdcard.SDCard(spi, cs)
 
 led = Pin(2, Pin.OUT)
 
-#uos.mount(sd, '/sd')
-#print(uos.listdir('/sd'))
+uos.mount(sd, '/sd')
+print(uos.listdir('/sd'))
 
-while(True):
-  led(0)
-  time.sleep(0.5)
-  led(1)
-  time.sleep(0.5)
+# while(True):       #This is a test that can be used to determin if the board is functioning
+#   led(0)
+#   sleep(0.5)
+#   led(1)
+#   sleep(0.5)
 
 while False:
   led(0)
