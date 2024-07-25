@@ -24,6 +24,7 @@ led = Pin(2, Pin.OUT)
 uos.mount(sd, '/sd')
 print(uos.listdir('/sd'))
 
+
 # while(True):       #This is a test that can be used to determin if the board is functioning
 #   led(0)
 #   sleep(0.5)
