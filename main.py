@@ -1,6 +1,7 @@
+
 # Complete project details at https://RandomNerdTutorials.com
 
-from machine import SPI, Pin, I2C
+from machine import SoftSPI, Pin, I2C
 from time import sleep
 import BME280
 import CCS811
@@ -14,7 +15,7 @@ i2c = I2C(scl=Pin(4), sda=Pin(5), freq=10000)
 s = CCS811.CCS811(i2c=i2c, addr=90)
 sleep(1)
 
-spi = SPI(1,sck=Pin(12), mosi=Pin(13), miso=Pin(15))
+spi = SoftSPI(sck=Pin(12), miso=Pin(15), mosi=Pin(13))
 cs = Pin(14)
 sd = sdcard.SDCard(spi, cs)
 
@@ -29,7 +30,7 @@ print(uos.listdir('/sd'))
 #   led(1)
 #   sleep(0.5)
 
-while False:
+while True:
   led(0)
   bme = BME280.BME280(i2c=i2c)
   temp = bme.temperature
