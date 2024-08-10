@@ -3,19 +3,30 @@
 #include <SD.h>
 #include <Adafruit_CCS811.h>
 #include <Adafruit_BME280.h>
+#include <time.h>
 
 Adafruit_CCS811 ccs;
 Adafruit_BME280 bme;
 
 const int ledPin = 9;//the number of the LED pin
 const int chipSelect = 10; // telling the Board where the microSD card is
+unsigned long previousMillis = 0;
+const unsigned long interval = 15 * 60 * 1000; // 15 minutes in milliseconds
 
+unsigned long startTime;
+unsigned long simulatedSeconds = 0;
 
-File testFile;
-
+// generating file
+File dataFile;
+long randomNumber = random(100000, 999999);
+String fileExtension = ".csv";
+String fileName = String(randomNumber) + fileExtension;
 
 void setup()
 {
+// Simulated time
+startTime = millis();
+
 Serial.begin(9600);
 SPI.begin();
   //Initializing the microSD card                          
@@ -26,26 +37,27 @@ SPI.begin();
   }
 Serial.println("initialization done.");
 
-testFile = SD.open("test.txt", FILE_WRITE);
 
-  if (testFile) {
-    Serial.print("Writing to test.txt...");
-    testFile.println("testing 1, 2, 3.");
-    testFile.close();
+dataFile = SD.open(fileName.c_str(), FILE_WRITE);
+
+  if (dataFile) {
+    Serial.print("Writing ...");
+    dataFile.println("Time, Temperature in °C, Pressure in hPa, Humidity in %, Co2 in ppm, TVOC in");
+    dataFile.close();
     Serial.println("done.");
 } else {
-    Serial.println("error opening test.txt");
+    Serial.println("error opening file");
 }
-testFile = SD.open("test.txt");
+dataFile = SD.open(fileName.c_str());
 
-if (testFile) {
+if (dataFile) {
     Serial.println("test.txt:");
-    while (testFile.available()) {
-      Serial.write(testFile.read());
+    while (dataFile.available()) {
+      Serial.write(dataFile.read());
     }
-    testFile.close();
+    dataFile.close();
 } else {
-    Serial.println("error opening test.txt");
+    Serial.println("error opening file");
 }
 
 // CCS811 Startup
@@ -72,6 +84,23 @@ pinMode(ledPin,OUTPUT);
 
 }
 
+
+// Defining Functions
+
+
+void saveToSd(char currentTime){
+dataFile = SD.open(fileName.c_str(), FILE_WRITE);
+if (dataFile) {
+    Serial.print("Writing ...");
+    String dataString = currentTime+ "," + String(bme.readTemperature()) + "," + String(bme.readPressure()) + "," + String(bme.readHumidity()) + "," + String(ccs.geteCO2()) + "," + String(ccs.getTVOC());
+    dataFile.println(dataString);
+    dataFile.close();
+    Serial.println("done.");
+} else {
+    Serial.println("error opening file");
+}
+}
+
 //the loop routine runs over and over again forever
 
 void loop()
@@ -81,27 +110,22 @@ void loop()
  
   delay(500);               //wait
 
-  if(ccs.available()){
-    if(!ccs.readData()){
-      Serial.print("CO2: ");
-      Serial.print(ccs.geteCO2());
-      Serial.print("ppm, TVOC: ");
-      Serial.println(ccs.getTVOC());
-    }
-    else{
-      Serial.println("ERROR!");
-      while(1);
-    }
-  }
+  unsigned long currentMillis = millis();
+  unsigned long elapsedTime = (currentMillis - startTime) / 1000;
 
-  auto temperature = String(bme.readTemperature()) + " °C";
-  auto pressure = String(bme.readPressure() / 100.0) + " hPa";
-  auto humidity = String(bme.readHumidity()) + " %";
+  int hours = (elapsedTime / 3600) % 24;
+  int minutes = (elapsedTime / 60) % 60;
+  int seconds = elapsedTime % 60;
 
-  String bmeMeasurements = temperature + ", " + pressure + ", " + humidity;
-  Serial.println(bmeMeasurements);
+  // Create a formatted string for the simulated time
+  char currentTime[20];
+  sprintf(currentTime, "%02d:%02d:%02d", hours, minutes, seconds);
 
-  digitalWrite(ledPin,LOW); //turn the LED off
+  
+  saveToSd(char(currentTime));
+  
+
+
 
  
   delay(500);               //wait
