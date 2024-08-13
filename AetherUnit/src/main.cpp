@@ -16,19 +16,25 @@ const unsigned long interval = 15 * 60 * 1000; // 15 minutes in milliseconds
 unsigned long startTime;
 unsigned long simulatedSeconds = 0;
 
-// generating file
 File dataFile;
-long randomNumber = random(100000, 999999);
-String fileExtension = ".csv";
-String fileName = String(randomNumber) + fileExtension;
+String fileName;
 
 void setup()
 {
-// Simulated time
-startTime = millis();
+  Serial.begin(9600);
+  SPI.begin();
+  // Simulated time
+  startTime = millis();
 
-Serial.begin(9600);
-SPI.begin();
+
+  randomSeed(analogRead(0));  // Use an unconnected analog pin for randomness
+
+  // Generating a random filename
+  long randomNumber = random(100000, 999999);
+  String fileExtension = ".csv";
+  fileName = String(randomNumber) + fileExtension;
+
+
   //Initializing the microSD card                          
   Serial.print("Initializing SD card..."); 
   if (!SD.begin()) {
@@ -82,17 +88,21 @@ status = bme.begin(0x76);
 // LED Setup
 pinMode(ledPin,OUTPUT);
 
+delay(10000); // letting all sensors startup
+
 }
 
 
 // Defining Functions
 
 
-void saveToSd(char currentTime){
+
+void saveToSd(String currentTime, float co2, float tvoc){
 dataFile = SD.open(fileName.c_str(), FILE_WRITE);
 if (dataFile) {
     Serial.print("Writing ...");
-    String dataString = currentTime+ "," + String(bme.readTemperature()) + "," + String(bme.readPressure()) + "," + String(bme.readHumidity()) + "," + String(ccs.geteCO2()) + "," + String(ccs.getTVOC());
+    Serial.println(String(ccs.geteCO2()) + String(ccs.getTVOC()));
+    String dataString = currentTime + "," + String(bme.readTemperature()) + "," + String(bme.readPressure()) + "," + String(bme.readHumidity()) + "," + String(co2) + "," + String(tvoc);
     dataFile.println(dataString);
     dataFile.close();
     Serial.println("done.");
@@ -101,33 +111,51 @@ if (dataFile) {
 }
 }
 
+void every15Minutes(String runtime){
+  // reading ccs data
+  if(ccs.available()){
+    if(!ccs.readData()){
+      float co2 = ccs.geteCO2();
+      float tvoc = ccs.getTVOC();
+      saveToSd(runtime, co2, tvoc);
+    }
+    else{
+      Serial.println("ERROR!");
+      while(1);
+    }
+  }
+  
+}
+
 //the loop routine runs over and over again forever
 
 void loop()
 {
-  digitalWrite(ledPin,HIGH);//turn the LED on 
+  // creating Time for data logging. Be advised this is simulated!!!
+  unsigned long currentMillis = millis();
 
- 
+  unsigned long totalMinutes = currentMillis / 60000; 
+  unsigned long days = totalMinutes / 1440; 
+  unsigned long hours = (totalMinutes % 1440) / 60; 
+  unsigned long minutes = totalMinutes % 60; 
+
+  // Create a formatted string
+  String runtime = String(days) + ":" + String(hours) + ":" + String(minutes);
+
+  // Print the formatted string to the Serial Monitor
+  Serial.println("Runtime: " + runtime);
+
+  digitalWrite(ledPin,HIGH);//turn the LED on 
   delay(500);               //wait
 
-  unsigned long currentMillis = millis();
-  unsigned long elapsedTime = (currentMillis - startTime) / 1000;
-
-  int hours = (elapsedTime / 3600) % 24;
-  int minutes = (elapsedTime / 60) % 60;
-  int seconds = elapsedTime % 60;
-
-  // Create a formatted string for the simulated time
-  char currentTime[20];
-  sprintf(currentTime, "%02d:%02d:%02d", hours, minutes, seconds);
-
   
-  saveToSd(char(currentTime));
   
+ every15Minutes(runtime);
+  
+  delay(500);
 
 
-
- 
+  digitalWrite(ledPin,LOW); //turn the LED off
   delay(500);               //wait
 
 }
