@@ -8,13 +8,15 @@
 Adafruit_CCS811 ccs;
 Adafruit_BME280 bme;
 
-const int ledPin = 9;//the number of the LED pin
+const unsigned long interval15Min = 15 * 60 * 1000; // 15 minutes in milliseconds
+const unsigned long interval1Sec = 1000;            // 1 second in milliseconds
 const int chipSelect = 10; // telling the Board where the microSD card is
-unsigned long previousMillis = 0;
-const unsigned long interval = 15 * 60 * 1000; // 15 minutes in milliseconds
+
 
 unsigned long startTime;
 unsigned long simulatedSeconds = 0;
+unsigned long previous15Min = 15;
+
 
 File dataFile;
 String fileName;
@@ -86,9 +88,10 @@ status = bme.begin(0x76);
         while (1);}
 
 // LED Setup
-pinMode(ledPin,OUTPUT);
+pinMode(LED_BUILTIN,OUTPUT);
+digitalWrite(LED_BUILTIN,HIGH);
 
-delay(10000); // letting all sensors startup
+delay(5000); // letting all sensors startup
 
 }
 
@@ -145,17 +148,20 @@ void loop()
   // Print the formatted string to the Serial Monitor
   Serial.println("Runtime: " + runtime);
 
-  digitalWrite(ledPin,HIGH);//turn the LED on 
+  digitalWrite(LED_BUILTIN,HIGH);//turn the LED on 
   delay(500);               //wait
 
   
-  
- every15Minutes(runtime);
+  if (minutes - previous15Min >= 0) {
+        previous15Min = previous15Min + 15;
+        every15Minutes(runtime);
+    }
+ ;
   
   delay(500);
 
 
-  digitalWrite(ledPin,LOW); //turn the LED off
+  digitalWrite(LED_BUILTIN,LOW); //turn the LED off
   delay(500);               //wait
 
 }
