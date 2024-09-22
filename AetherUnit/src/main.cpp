@@ -3,21 +3,40 @@
 #include <SD.h>
 #include <Adafruit_CCS811.h>
 #include <Adafruit_BME280.h>
+#include <time.h>
 
 Adafruit_CCS811 ccs;
 Adafruit_BME280 bme;
 
-const int ledPin = 9;//the number of the LED pin
+const unsigned long interval15Min = 15 * 60 * 1000; // 15 minutes in milliseconds
+const unsigned long interval1Sec = 1000;            // 1 second in milliseconds
 const int chipSelect = 10; // telling the Board where the microSD card is
 
 
-File testFile;
+unsigned long startTime;
+unsigned long simulatedSeconds = 0;
+unsigned long previous15Min = 15;
 
+
+File dataFile;
+String fileName;
 
 void setup()
 {
-Serial.begin(9600);
-SPI.begin();
+  Serial.begin(9600);
+  SPI.begin();
+  // Simulated time
+  startTime = millis();
+
+
+  randomSeed(analogRead(0));  // Use an unconnected analog pin for randomness
+
+  // Generating a random filename
+  long randomNumber = random(100000, 999999);
+  String fileExtension = ".csv";
+  fileName = String(randomNumber) + fileExtension;
+
+
   //Initializing the microSD card                          
   Serial.print("Initializing SD card..."); 
   if (!SD.begin()) {
@@ -26,26 +45,27 @@ SPI.begin();
   }
 Serial.println("initialization done.");
 
-testFile = SD.open("test.txt", FILE_WRITE);
 
-  if (testFile) {
-    Serial.print("Writing to test.txt...");
-    testFile.println("testing 1, 2, 3.");
-    testFile.close();
+dataFile = SD.open(fileName.c_str(), FILE_WRITE);
+
+  if (dataFile) {
+    Serial.print("Writing ...");
+    dataFile.println("Time, Temperature in °C, Pressure in hPa, Humidity in %, Co2 in ppm, TVOC in");
+    dataFile.close();
     Serial.println("done.");
 } else {
-    Serial.println("error opening test.txt");
+    Serial.println("error opening file");
 }
-testFile = SD.open("test.txt");
+dataFile = SD.open(fileName.c_str());
 
-if (testFile) {
+if (dataFile) {
     Serial.println("test.txt:");
-    while (testFile.available()) {
-      Serial.write(testFile.read());
+    while (dataFile.available()) {
+      Serial.write(dataFile.read());
     }
-    testFile.close();
+    dataFile.close();
 } else {
-    Serial.println("error opening test.txt");
+    Serial.println("error opening file");
 }
 
 // CCS811 Startup
@@ -68,42 +88,80 @@ status = bme.begin(0x76);
         while (1);}
 
 // LED Setup
-pinMode(ledPin,OUTPUT);
+pinMode(LED_BUILTIN,OUTPUT);
+digitalWrite(LED_BUILTIN,HIGH);
+
+delay(5000); // letting all sensors startup
 
 }
 
-//the loop routine runs over and over again forever
 
-void loop()
-{
-  digitalWrite(ledPin,HIGH);//turn the LED on 
+// Defining Functions
 
- 
-  delay(500);               //wait
 
+
+void saveToSd(String currentTime, float co2, float tvoc){
+dataFile = SD.open(fileName.c_str(), FILE_WRITE);
+if (dataFile) {
+    Serial.print("Writing ...");
+    Serial.println(String(ccs.geteCO2()) + String(ccs.getTVOC()));
+    String dataString = currentTime + "," + String(bme.readTemperature()) + "," + String(bme.readPressure()) + "," + String(bme.readHumidity()) + "," + String(co2) + "," + String(tvoc);
+    dataFile.println(dataString);
+    dataFile.close();
+    Serial.println("done.");
+} else {
+    Serial.println("error opening file");
+}
+}
+
+void every15Minutes(String runtime){
+  // reading ccs data
   if(ccs.available()){
     if(!ccs.readData()){
-      Serial.print("CO2: ");
-      Serial.print(ccs.geteCO2());
-      Serial.print("ppm, TVOC: ");
-      Serial.println(ccs.getTVOC());
+      float co2 = ccs.geteCO2();
+      float tvoc = ccs.getTVOC();
+      saveToSd(runtime, co2, tvoc);
     }
     else{
       Serial.println("ERROR!");
       while(1);
     }
   }
+  
+}
 
-  auto temperature = String(bme.readTemperature()) + " °C";
-  auto pressure = String(bme.readPressure() / 100.0) + " hPa";
-  auto humidity = String(bme.readHumidity()) + " %";
+//the loop routine runs over and over again forever
 
-  String bmeMeasurements = temperature + ", " + pressure + ", " + humidity;
-  Serial.println(bmeMeasurements);
+void loop()
+{
+  // creating Time for data logging. Be advised this is simulated!!!
+  unsigned long currentMillis = millis();
 
-  digitalWrite(ledPin,LOW); //turn the LED off
+  unsigned long totalMinutes = currentMillis / 60000; 
+  unsigned long days = totalMinutes / 1440; 
+  unsigned long hours = (totalMinutes % 1440) / 60; 
+  unsigned long minutes = totalMinutes % 60; 
 
- 
+  // Create a formatted string
+  String runtime = String(days) + ":" + String(hours) + ":" + String(minutes);
+
+  // Print the formatted string to the Serial Monitor
+  Serial.println("Runtime: " + runtime);
+
+  digitalWrite(LED_BUILTIN,HIGH);//turn the LED on 
+  delay(500);               //wait
+
+  
+  if (minutes - previous15Min >= 0) {
+        previous15Min = previous15Min + 15;
+        every15Minutes(runtime);
+    }
+ ;
+  
+  delay(500);
+
+
+  digitalWrite(LED_BUILTIN,LOW); //turn the LED off
   delay(500);               //wait
 
 }
