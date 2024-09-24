@@ -15,7 +15,8 @@ const int chipSelect = 10; // telling the Board where the microSD card is
 
 unsigned long startTime;
 unsigned long simulatedSeconds = 0;
-unsigned long previous15Min = 15;
+int previous15Min = 15;
+int result = 1;
 
 
 File dataFile;
@@ -136,11 +137,10 @@ void loop()
 {
   // creating Time for data logging. Be advised this is simulated!!!
   unsigned long currentMillis = millis();
-
   unsigned long totalMinutes = currentMillis / 60000; 
-  unsigned long days = totalMinutes / 1440; 
-  unsigned long hours = (totalMinutes % 1440) / 60; 
-  unsigned long minutes = totalMinutes % 60; 
+  int days = totalMinutes / 1440; 
+  int hours = (totalMinutes % 1440) / 60; 
+  int minutes = totalMinutes % 60; 
 
   // Create a formatted string
   String runtime = String(days) + ":" + String(hours) + ":" + String(minutes);
@@ -148,20 +148,14 @@ void loop()
   // Print the formatted string to the Serial Monitor
   Serial.println("Runtime: " + runtime);
 
-  digitalWrite(LED_BUILTIN,HIGH);//turn the LED on 
-  delay(500);               //wait
-
   
-  if (minutes - previous15Min >= 0) {
-        previous15Min = previous15Min + 15;
+  if(result == minutes % previous15Min) {
         every15Minutes(runtime);
+        dataFile = SD.open(fileName.c_str(), FILE_WRITE);
+        dataFile.close();
     }
  ;
   
-  delay(500);
-
-
-  digitalWrite(LED_BUILTIN,LOW); //turn the LED off
-  delay(500);               //wait
+  delay(60000);
 
 }
