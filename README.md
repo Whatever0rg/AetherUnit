@@ -82,7 +82,12 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `Whatever0rg`, `AetherUnit`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `AetherUnit`, `project_description`
+The AetherUnit is a projekt I developed and created for a technical exam.
+It record data every 15 minutes, but that can be adjusted in the main.cpp.
+The recorded Data is composed of Temperature, Humidity, Pressure, CO2 and TVOC.
+All this data is saved on a microSD-Card, formated as an CSV, because it was the easiest for me to implement.
+The whole idea for this project is to help the user to track their airquality inside the room or office.-Use cases may vary-
+The current iteration has no live display nor a GUI, this might be added on a later date. - A-levels are coming up - 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -90,9 +95,11 @@ Here's a blank template to get started: To avoid retyping too much info. Do a se
 
 <!-- GETTING STARTED -->
 ## Getting Started
-
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+For a starter you will need:
+- An Arduino UNO R3 (or similar)
+- A BME 280
+- A CCS 811
+- An microSD-Card module
 
 ### Prerequisites
 
@@ -108,19 +115,10 @@ This is an example of how to list things you need to use the software and how to
    ```sh
    git clone https://github.com/Whatever0rg/AetherUnit.git
    ```
-2. Format using platformio.ini
-   ```sh
-   
-   ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
-5. Change git remote url to avoid accidental pushes to base project
-   ```sh
-   git remote set-url origin Whatever0rg/AetherUnit
-   git remote -v # confirm the changes
-   ```
+2. Build version using platformio.ini
+    U
+3. Connect Arduino and upload version using paltformio.ini
+  
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -140,10 +138,9 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-    - [ ] Nested Feature
+- [ ] GUI; Webinterface
+- [ ] GUI; Analog
+
 
 See the [open issues](https://github.com/Whatever0rg/AetherUnit/issues) for a full list of proposed features (and known issues).
 
@@ -187,7 +184,7 @@ TBA
 <!-- CONTACT -->
 ## Contact
 
-Your Name - email@email_client.com
+Bennet H. - bennet@hfjn.de
 
 Project Link: [https://github.com/Whatever0rg/AetherUnit](https://github.com/Whatever0rg/AetherUnit)
 
