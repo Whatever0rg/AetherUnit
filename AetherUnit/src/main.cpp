@@ -11,8 +11,13 @@ Adafruit_BME280 bme;
 SevSeg sevseg;
 
 
-File dataFile;
-String fileName;
+const int buttonPin = A0;
+int buttonState = LOW;
+int reading = 0;
+int oldButtonState = LOW;
+bool toggle = false;
+unsigned long lastMillis;
+bool flip = true;
 
 void setup()
 {
@@ -23,8 +28,10 @@ byte numDigits = 4;
   // variable above indicates that 4 resistors were placed on the digit pins.
   // set variable to 1 if you want to use 8 resistors on the segment pins.
   sevseg.begin(COMMON_CATHODE, numDigits, digitPins, segmentPins, resistorsOnSegments);
-  sevseg.setBrightness(90);
+  sevseg.setBrightness(50);
 
+
+pinMode(buttonPin, INPUT);
 
 
 
@@ -54,21 +61,28 @@ digitalWrite(LED_BUILTIN,HIGH);
 delay(5000); // letting all sensors startup
 Serial.println("initialization done.");
 }
-
+bool displayedInformation(bool flip){
+  if (flip == true){
+    sevseg.setNumber(bme.readTemperature());
+  } else {
+    sevseg.setNumber(bme.readHumidity());
+  }
+}
 
 void loop()
 {
-  static unsigned long timer = millis();
-  static int iterator = 0;
-
-  if (millis() - timer >= 1000) {
-    timer += 1000;
-    iterator ++;
-    if (iterator % 2){
-      sevseg.setNumber(bme.readTemperature());
+  reading = digitalRead(buttonPin);
+  if (reading != oldButtonState) {
+    lastMillis = millis();
+  }
+  if ((millis() - lastMillis) > 50 && reading != buttonState) {
+    buttonState = reading;
+    if (buttonState == HIGH){
+      flip = !flip;
+      displayedInformation(flip);
     }
-    else{sevseg.setNumber(bme.readHumidity());
-  }}
-  sevseg.refreshDisplay(); // Must run repeatedly
 
+  }
+  sevseg.refreshDisplay(); // Must run repeatedly
+  oldButtonState = reading;
 }
