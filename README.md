@@ -95,19 +95,11 @@ The current iteration has no live display nor a GUI, this might be added on a la
 
 <!-- GETTING STARTED -->
 ## Getting Started
-For a starter you will need:
+For a base Module you need:
 - An Arduino UNO R3 (or similar)
 - A BME 280
 - A CCS 811
-- An microSD-Card module
 
-### Prerequisites
-
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
 
 ### Installation
 
