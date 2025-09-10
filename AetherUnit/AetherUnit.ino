@@ -37,25 +37,26 @@ void setup() {
 
     if(!ccs.begin()){
         Serial.println("Failed to start sensor! Please check your wiring.");
+    }
+
+    // Wait for the sensor to be ready
+    while(!ccs.available());
+
+    // BME Setup
+    bool status;
+    status = bme.begin(0x76);  
+        if (!status) {
+            Serial.println("Could not find a valid BME280 sensor, check wiring!");
+        }
+
+    // LED Setup
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);
+
+    delay(5000);    // letting all sensors startup
+    Serial.println("initialization done.");
 }
 
-  // Wait for the sensor to be ready
-  while(!ccs.available());
-
-// BME Setup
-bool status;
-status = bme.begin(0x76);  
-    if (!status) {
-        Serial.println("Could not find a valid BME280 sensor, check wiring!");
-        while (1);}
-
-// LED Setup
-pinMode(LED_BUILTIN, OUTPUT);
-digitalWrite(LED_BUILTIN, HIGH);
-
-delay(5000);    // letting all sensors startup
-Serial.println("initialization done.");
-}
 bool displayedInformation(bool flip) {
     if (flip == true) {
         sevseg.setNumber(bme.readTemperature());
@@ -64,8 +65,7 @@ bool displayedInformation(bool flip) {
     }
 }
 
-void loop() {
-    reading = digitalRead(buttonPin);
+void buttonflip() {
     if (reading != oldButtonState) {
         lastMillis = millis();
     }
@@ -76,6 +76,12 @@ void loop() {
             displayedInformation(flip);
         }
     }
-    sevseg.refreshDisplay(); // Must run repeatedly
     oldButtonState = reading;
+
+}
+
+void loop() {
+    reading = digitalRead(buttonPin);
+    buttonflip();
+    sevseg.refreshDisplay(); // Must run repeatedly
 }
