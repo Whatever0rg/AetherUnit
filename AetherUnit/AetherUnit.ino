@@ -18,6 +18,10 @@ int oldButtonState = LOW;
 bool toggle = false;
 long lastMillis;
 bool flip = true;
+int sensorData[4];
+int buttonPresses = 0;
+long lastInterval = 0;
+long interval = 1000;
 
 void setup() {
     byte numDigits = 4; 
@@ -57,13 +61,6 @@ void setup() {
     Serial.println("initialization done.");
 }
 
-bool displayedInformation(bool flip) {
-    if (flip == true) {
-        sevseg.setNumber(bme.readTemperature());
-    } else {
-        sevseg.setNumber(bme.readHumidity());
-    }
-}
 
 void buttonflip() {
     if (reading != oldButtonState) {
@@ -72,15 +69,37 @@ void buttonflip() {
     if ((millis() - lastMillis) > 50 && reading != buttonState) {
         buttonState = reading;
         if (buttonState == HIGH){
-            flip = !flip;
-            displayedInformation(flip);
+            buttonPresses = buttonPresses + 1;
+            updatedisplay();
         }
     }
     oldButtonState = reading;
 
 }
 
-void loop() {
+int readsensors() {
+    sensorData[0] = bme.readTemperature();
+    sensorData[1] = bme.readHumidity();
+    if (ccs.available()){
+        sensorData[2] = ccs.geteCO2();
+        sensorData[3] = ccs.getTVOC();
+    } else {
+        sensorData[2] = 8888;
+        sensorData[3] = 8888;
+        }
+}
+
+void updatedisplay() {
+    sevseg.setNumber(sensorData[(buttonPresses) % 4]);
+
+}
+
+void loop(){
+    if ((millis() - lastInterval) >= interval){
+        lastInterval = millis();
+        readsensors();
+        updatedisplay();
+        }
     reading = digitalRead(buttonPin);
     buttonflip();
     sevseg.refreshDisplay(); // Must run repeatedly
