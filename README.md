@@ -83,23 +83,41 @@
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
 The AetherUnit is a projekt I developed and created for a technical exam.
-It record data every 15 minutes, but that can be adjusted in the main.cpp.
-The recorded Data is composed of Temperature, Humidity, Pressure, CO2 and TVOC.
-All this data is saved on a microSD-Card, formated as an CSV, because it was the easiest for me to implement.
-The whole idea for this project is to help the user to track their airquality inside the room or office.-Use cases may vary-
-The current iteration has no live display nor a GUI, this might be added on a later date. - A-levels are coming up - 
+I want it to be a modular base station, able to be upgraded to the users needs.
+The First version was a simple monotering station which would periodically write the current Sensorreading onto a micro SD card.
+It was used for long time analysis of the air quality in diffrent spaces.
+
+Currently I am working on a upgraded version which works like a typical thermostat, with extra readouts.
+Using a seven segment display the Info is shown.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
 <!-- GETTING STARTED -->
-## Getting Started
-For a base Module you need:
-- An Arduino UNO R3 (or similar)
-- A BME 280
-- A CCS 811
+## Dependencies
+- arduino-cli
 
+
+## Hardware:
+- Base Module
+    - Arduino UNO R3 (*similar should work too*)
+    - A BME 280
+    - A CCS 811
+
+- Seven Segment Display Module
+    - Base Module
+    - 4x 330Ω Resistor
+    - 564 1AS (*Change the pins depending on your 7 Segment display*)
+    - push button
+        - depending on button 10KΩ resistor
+
+- SD-Card Module
+    - Base Module
+    - MicroSD Card Adapter (*similar should work*)
+
+> [!WARNING]
+> SD card currently not supported
 
 ### Installation
 
@@ -107,10 +125,16 @@ For a base Module you need:
    ```sh
    git clone https://github.com/Whatever0rg/AetherUnit.git
    ```
-2. Build version using platformio.ini
-    U
-3. Connect Arduino and upload version using paltformio.ini
-  
+2. Connect Arduino
+
+3. Move into target directory
+    ```sh
+    cd AetherUnit/AetherUnit/
+    ```
+4. Execute Makefile
+    ```sh
+    make
+    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -119,9 +143,7 @@ For a base Module you need:
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
+TBA
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -131,7 +153,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 ## Roadmap
 
 - [ ] GUI; Webinterface
-- [ ] GUI; Analog
+- [X] GUI; Analog
 
 
 See the [open issues](https://github.com/Whatever0rg/AetherUnit/issues) for a full list of proposed features (and known issues).
@@ -176,7 +198,6 @@ TBA
 <!-- CONTACT -->
 ## Contact
 
-Bennet H. - bennet@hfjn.de
 
 Project Link: [https://github.com/Whatever0rg/AetherUnit](https://github.com/Whatever0rg/AetherUnit)
 
