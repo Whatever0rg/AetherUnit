@@ -19,17 +19,19 @@ bool toggle = false;
 long lastMillis;
 bool flip = true;
 int sensorData[4];
+int decimalPosition[4] = {1,1,-1,-1}; 
 int buttonPresses = 0;
 long lastInterval = 0;
 long interval = 1000;
 
 void setup() {
+    Serial.begin(9600);
     byte numDigits = 4; 
     byte digitPins[] = {2, 3, 4, 5};
     byte segmentPins[] = {6, 7, 8, 9, 10, 11, 12, 13};
     bool resistorsOnSegments = 0; 
     sevseg.begin(COMMON_CATHODE, numDigits, digitPins, segmentPins, resistorsOnSegments);
-    sevseg.setBrightness(50);
+    sevseg.setBrightness(10);
 
     pinMode(buttonPin, INPUT);
 
@@ -78,11 +80,13 @@ void buttonflip() {
 }
 
 int readsensors() {
-    sensorData[0] = bme.readTemperature();
-    sensorData[1] = bme.readHumidity();
     if (ccs.available()){
+        if(!ccs.readData()){
+        sensorData[0] = bme.readTemperature() * 10;
+        sensorData[1] = bme.readHumidity() * 10;
         sensorData[2] = ccs.geteCO2();
         sensorData[3] = ccs.getTVOC();
+        }
     } else {
         sensorData[2] = 8888;
         sensorData[3] = 8888;
@@ -90,7 +94,7 @@ int readsensors() {
 }
 
 void updatedisplay() {
-    sevseg.setNumber(sensorData[(buttonPresses) % 4]);
+    sevseg.setNumber(sensorData[(buttonPresses) % 4], decimalPosition[buttonPresses % 4]);
 
 }
 
@@ -99,7 +103,7 @@ void loop(){
         lastInterval = millis();
         readsensors();
         updatedisplay();
-        }
+    }
     reading = digitalRead(buttonPin);
     buttonflip();
     sevseg.refreshDisplay(); // Must run repeatedly
