@@ -139,29 +139,6 @@ Using a seven segment display the Info is shown.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-
-<!-- USAGE EXAMPLES -->
-## Usage
-
-TBA
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- ROADMAP -->
-## Roadmap
-
-- [ ] GUI; Webinterface
-- [X] GUI; Analog
-
-
-See the [open issues](https://github.com/Whatever0rg/AetherUnit/issues) for a full list of proposed features (and known issues).
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
 <!-- CONTRIBUTING -->
 ## Contributing
 
@@ -185,16 +162,6 @@ Don't forget to give the project a star! Thanks again!
 </a>
 
 
-
-<!-- LICENSE -->
-## License
-
-TBA
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
 <!-- CONTACT -->
 ## Contact
 
@@ -202,19 +169,6 @@ TBA
 Project Link: [https://github.com/Whatever0rg/AetherUnit](https://github.com/Whatever0rg/AetherUnit)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
-
-* []()
-* []()
-* []()
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
